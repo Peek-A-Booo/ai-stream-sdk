@@ -1,0 +1,11 @@
+{
+  "index": "Introduction",
+  "getting-started": "Getting Started",
+  "providers": "Model Providers",
+  "contact": {
+    "title": "Contact ↗",
+    "type": "page",
+    "href": "https://twitter.com/peekbomb",
+    "newWindow": true
+  }
+}

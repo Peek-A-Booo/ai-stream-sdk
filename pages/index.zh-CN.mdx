@@ -1,0 +1,29 @@
+import Image from 'next/image'
+import { Cards } from 'nextra/components'
+
+# AI Stream SDK
+
+**AI Stream SDK** 是一个插件，能够帮助你快速实现 AI API 数据流。它支持各种模型的 API 转发，使用它可以让你迅速搭建自己的 API 转发服务。
+
+## 功能特性
+
+- 数据流转发
+- 提供流数据响应各个阶段的监控
+- _未来支持对模型响应的 token 额度计算_
+
+## 模型支持
+
+逐渐增加对各个模型的支持。
+
+<Cards num={2}>
+  <Cards.Card image arrow title="OpenAI" href="/providers/openai">
+    <div className="flex aspect-[2/1] items-center justify-center bg-white/80">
+      <Image src="/openai.svg" alt="Hello" width={124} height={35.8} />
+    </div>
+  </Cards.Card>
+  <Cards.Card image arrow title="Azure OpenAI" href="/providers/azure">
+    <div className="flex aspect-[2/1] items-center justify-center bg-white/80">
+      <Image src="/azure.svg" alt="Hello" width={124} height={35.8} />
+    </div>
+  </Cards.Card>
+</Cards>

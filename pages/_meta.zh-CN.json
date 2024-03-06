@@ -1,0 +1,11 @@
+{
+  "index": "简介",
+  "getting-started": "开始使用",
+  "providers": "大模型供应商",
+  "contact": {
+    "title": "联系我 ↗",
+    "type": "page",
+    "href": "https://twitter.com/peekbomb",
+    "newWindow": true
+  }
+}

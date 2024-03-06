@@ -1,23 +1,5 @@
-import {
-  createEmptyReadableStream,
-  createEventStreamTransformer,
-  createCallbacksTransformer,
-} from "./lib";
+import OpenAIStream from './stream'
 
-export default function OpenAIStream(response: Response) {
-  const responseBodyReadableStream =
-    response.body || createEmptyReadableStream();
+export * from './type'
 
-  const stream = responseBodyReadableStream
-    .pipeThrough(createEventStreamTransformer())
-    .pipeThrough(createCallbacksTransformer())
-    .pipeThrough(
-      new TransformStream({
-        transform: async (chunk, controller) => {
-          controller.enqueue(chunk);
-        },
-      })
-    );
-
-  return stream;
-}
+export default OpenAIStream

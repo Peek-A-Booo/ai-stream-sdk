@@ -1,0 +1,134 @@
+import { Callout } from 'nextra/components'
+
+import { OptionTable } from '@components/table'
+
+# OpenAIStream
+
+<Callout emoji="💡">
+  All demos are demonstrated in **Next.js** and can be expanded to other places
+  and frameworks.
+</Callout>
+
+As long as it conforms to the OpenAI response data format, any API can be used.
+
+## Guide
+
+### Create a Route Handler
+
+Create a Next.js route handler `app/api/chat/route.ts` using Edge Runtime and OpenAI, or use fetch to process OpenAI streaming data and return a response.
+
+<Callout emoji="⚠️">Set **runtime** to **"edge"**</Callout>
+
+```ts filename="app/api/chat/route.ts" copy
+import { OpenAIStream } from 'ai-stream-sdk'
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: 'sk-*****',
+})
+
+// IMPORTANT! Set the runtime to edge
+export const runtime = 'edge'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages,
+    stream: true,
+  })
+
+  // You can also use fetch to directly access the OpenAI Endpoint.
+  // const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+  //   },
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     stream: true,
+  //     model: 'gpt-3.5-turbo',
+  //     messages,
+  //   }),
+  // })
+
+  const stream = OpenAIStream(response)
+
+  return new Response(stream)
+}
+```
+
+### Do Something after Completion
+
+You can use the `onCompletion` callback to perform more processing after the stream response is returned to the user, such as calculating the number of tokens consumed.
+
+```ts filename="app/api/chat/route.ts" copy
+import { GPTTokens } from 'gpt-tokens'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+
+  // ...
+
+  const stream = OpenAIStream(response, {
+    onStart: () => {
+      // Streaming response can start with some processing
+      console.log('Streaming response started')
+    },
+    onCompletion: (completion) => {
+      console.log('Streaming response ended', completion)
+
+      // Every time a response is completed, some processing can be done, such as calculating the number of tokens consumed
+      const usageInfo = new GPTTokens({
+        model: 'gpt-3.5-turbo-1106',
+        messages: [...messages, { role: 'assistant', content: completion }],
+      })
+      console.info('Used tokens: ', usageInfo.usedTokens)
+      console.info('Used USD: ', usageInfo.usedUSD)
+    },
+  })
+
+  return new Response(stream)
+}
+```
+
+## API
+
+The `OpenAIStream` takes the following props:
+
+### Parameters
+
+#### `response`
+
+- Type: `'Response' | 'StreamChatCompletionResponse'`
+
+Support `OpenAI` chat completions and `fetch` returned Response objects.
+
+#### `callbacks`(optional)
+
+- Type: `'StreamCallbacksOptions'`
+
+Support input callback for more operations.
+
+### Types
+
+#### `StreamCallbacksOptions`
+
+This is an object that contains the following properties:
+
+<OptionTable
+  language="en"
+  options={[
+    [
+      'onStart',
+      '() => Promise<void> | void',
+      'Called at the beginning of a streaming response',
+    ],
+    [
+      'onCompletion',
+      '(completion: string) => Promise<void> | void',
+      'After the streamed response ends, call back and return the text content of the current response.',
+    ],
+  ]}
+/>

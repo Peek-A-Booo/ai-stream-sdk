@@ -1,0 +1,130 @@
+import { Callout } from 'nextra/components'
+
+import { OptionTable } from '@components/table'
+
+# OpenAIStream
+
+<Callout emoji="💡">
+  所有 demo 都是在 **Next.js** 中演示的，也可以拓展到其他地方和框架中使用。
+</Callout>
+
+只要是符合 OpenAI 响应数据格式的 API 都可以使用。
+
+## 指引
+
+### 创建路由
+
+我们来创建一个 Next.js 的路由处理程序 `app/api/chat/route.ts`，使用 Edge Runtime，借助 OpenAI 或自己使用 fetch 来完成对 OpenAI 流式数据的处理并返回响应。
+
+<Callout emoji="⚠️">需要将 **runtime** 设置为 **"edge"**</Callout>
+
+```ts filename="app/api/chat/route.ts" copy
+import { OpenAIStream } from 'ai-stream-sdk'
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: 'sk-*****',
+})
+
+// 注意! 请将 runtime 设置为 'edge'
+export const runtime = 'edge'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-3.5-turbo',
+    messages,
+    stream: true,
+  })
+
+  // 您还可以使用 fetch 直接访问 OpenAI Endpoint
+  // const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+  //   },
+  //   method: 'POST',
+  //   body: JSON.stringify({
+  //     stream: true,
+  //     model: 'gpt-3.5-turbo',
+  //     messages,
+  //   }),
+  // })
+
+  const stream = OpenAIStream(response)
+
+  return new Response(stream)
+}
+```
+
+### 响应结束后处理
+
+可以通过回调事件来进行更多的处理。例如在将完成流式响应回传给用户后，希望计算当前消耗的 Token 数量，可使用 `onCompletion` 回调。
+
+```ts filename="app/api/chat/route.ts" copy
+import { GPTTokens } from 'gpt-tokens'
+
+export async function POST(request: Request) {
+  const { messages } = await request.json()
+
+  // ...
+
+  const stream = OpenAIStream(response, {
+    onStart: () => {
+      // 流式响应开始时可以做一些处理
+      console.log('流式响应开始')
+    },
+    onCompletion: (completion) => {
+      console.log('流式响应结束', completion)
+
+      // 每次响应完成时可以做一些处理，例如计算当前消耗的 Token 数量
+      const usageInfo = new GPTTokens({
+        model: 'gpt-3.5-turbo-1106',
+        messages: [...messages, { role: 'assistant', content: completion }],
+      })
+      console.info('Used tokens: ', usageInfo.usedTokens)
+      console.info('Used USD: ', usageInfo.usedUSD)
+    },
+  })
+
+  return new Response(stream)
+}
+```
+
+## API
+
+`OpenAIStream` 有以下属性：
+
+### 参数
+
+#### `response`
+
+- Type: `'Response' | 'StreamChatCompletionResponse'`
+
+支持 `OpenAI` chat completions 以及 `fetch` 返回的 Response 对象。
+
+#### `callbacks`(optional)
+
+- Type: `'StreamCallbacksOptions'`
+
+支持传入回调来进行更多的操作处理。
+
+### 参数类型
+
+#### `StreamCallbacksOptions`
+
+{/* This is an object that contains the following properties: */}
+该对象具有以下属性：
+
+<OptionTable
+  language="zh-CN"
+  options={[
+    ['onStart', '() => Promise<void> | void', '流式响应开始时调用'],
+    [
+      'onCompletion',
+      '(completion: string) => Promise<void> | void',
+      '流式响应结束后调用，并返回当前响应的文本内容',
+    ],
+  ]}
+/>

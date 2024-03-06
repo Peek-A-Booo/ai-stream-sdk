@@ -1,0 +1,29 @@
+import Image from 'next/image'
+import { Cards } from 'nextra/components'
+
+# AI Stream SDK
+
+**AI Stream SDK** is a plugin that can quickly implement AI API data streams. It supports various model API forwarding, allowing you to quickly build your API forwarding service.
+
+## Features
+
+- Data flow transmission
+- Provide real-time monitoring of data stream in each stage
+- _Future support for calculating token thresholds for model responses_
+
+## Supported models
+
+Gradually increase support for various models.
+
+<Cards num={2}>
+  <Cards.Card image arrow title="OpenAI" href="/providers/openai">
+    <div className="flex aspect-[2/1] items-center justify-center bg-white/80">
+      <Image src="/openai.svg" alt="Hello" width={124} height={35.8} />
+    </div>
+  </Cards.Card>
+  <Cards.Card image arrow title="Azure OpenAI" href="/providers/azure">
+    <div className="flex aspect-[2/1] items-center justify-center bg-white/80">
+      <Image src="/azure.svg" alt="Hello" width={124} height={35.8} />
+    </div>
+  </Cards.Card>
+</Cards>

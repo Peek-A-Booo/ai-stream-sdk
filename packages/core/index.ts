@@ -1,1 +1,2 @@
-export { default as OpenAIStream } from "./openai";
+export { default as OpenAIStream } from './openai'
+export type * from './openai'

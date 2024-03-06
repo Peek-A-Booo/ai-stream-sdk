@@ -16,7 +16,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {
-      "@core/*": ["packages/core/*"]
+      "@core/*": ["packages/core/*"],
+      "@components/*": ["components/*"]
     },
     "jsx": "preserve"
   },
