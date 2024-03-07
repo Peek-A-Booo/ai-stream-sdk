@@ -23,6 +23,17 @@ function getContent(message: string) {
   }
 }
 
+// Has the response been completed?
+function getStreamEnd(event: ParsedEvent | ReconnectInterval) {
+  return (
+    ('data' in event && event.type === 'event' && event.data === '[DONE]') ||
+    // Replicate doesn't send [DONE] but does send a 'done' event
+    // @see https://replicate.com/docs/streaming
+    (event as any).event === 'done' ||
+    getFinishReason(event) === 'stop'
+  )
+}
+
 export function createEmptyReadableStream(): ReadableStream {
   return new ReadableStream({
     start(controller) {
@@ -38,27 +49,34 @@ export function createEventStreamTransformer(
 
   const textDecoder = new TextDecoder()
   let eventSourceParser: EventSourceParser
+  let hasStreamEnded = false
 
   return new TransformStream({
     async start(controller) {
       eventSourceParser = createParser(
         (event: ParsedEvent | ReconnectInterval) => {
-          if (
-            ('data' in event &&
-              event.type === 'event' &&
-              event.data === '[DONE]') ||
-            // Replicate doesn't send [DONE] but does send a 'done' event
-            // @see https://replicate.com/docs/streaming
-            (event as any).event === 'done' ||
-            getFinishReason(event) === 'stop'
-          ) {
-            controller.terminate()
-            return
-          }
-          if ('data' in event) {
-            const parsedMessage = event.data
-            if (parsedMessage) controller.enqueue(parsedMessage)
-          }
+          // All pending tasks are uniformly processed as "[DONE]" and only returned once.
+          try {
+            const isStreamEnd = getStreamEnd(event)
+
+            if (!isStreamEnd && 'data' in event) {
+              JSON.parse(event.data)
+            }
+
+            if (isStreamEnd) {
+              if (!hasStreamEnded) {
+                controller.enqueue('[DONE]')
+              }
+              hasStreamEnded = true
+              controller.terminate()
+              return
+            }
+
+            if ('data' in event) {
+              const parsedMessage = event.data
+              if (parsedMessage) controller.enqueue(parsedMessage)
+            }
+          } catch {}
         },
       )
     },

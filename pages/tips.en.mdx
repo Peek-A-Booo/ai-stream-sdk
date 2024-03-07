@@ -1,0 +1,19 @@
+# Tips
+
+### Unified data stream response end marker
+
+Due to the lack of standardization in many large models, the end markers for streaming data responses are not consistent. The **AI Stream SDK** unifies these end markers into the format `[DONE]` as specified by `OpenAI`.
+
+```xml {11}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":"Hello"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":"!"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":" How"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":" can"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":" I"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":" assist"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":" you"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":" today"},"logprobs":null,"finish_reason":null}]}
+data: {"id":"chatcmpl-905WNNV65SjiFoaYVIsawd7ZoQiE0","object":"chat.completion.chunk","created":1709808251,"model":"gpt-3.5-turbo-0125","system_fingerprint":"fp_2b778c6b35","choices":[{"index":0,"delta":{"content":"?"},"logprobs":null,"finish_reason":null}]}
+data: [DONE]
+```
