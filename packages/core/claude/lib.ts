@@ -10,7 +10,11 @@ import { StreamCallbacksOptions } from './type'
 
 function getContent(message: string) {
   try {
-    return JSON.parse(message).choices[0].delta.content
+    return (
+      JSON.parse(message).content_block?.text ||
+      JSON.parse(message).delta?.text ||
+      ''
+    )
   } catch {
     return ''
   }

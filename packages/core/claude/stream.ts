@@ -2,7 +2,7 @@ import { createEmptyReadableStream } from '../lib'
 import { createCallbacksTransformer, createEventStreamTransformer } from './lib'
 import { StreamCallbacksOptions, StreamChatCompletionResponse } from './type'
 
-export default function OpenAIStream(
+export default function AnthropicStream(
   response: Response | StreamChatCompletionResponse,
   callbacks?: StreamCallbacksOptions,
 ) {

@@ -1,6 +1,6 @@
 {
   "name": "ai-stream-sdk",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "private": false,
   "description": "Help you quickly transfer AI services",
   "module": "dist/index.mjs",
