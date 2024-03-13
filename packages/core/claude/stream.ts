@@ -1,6 +1,10 @@
 import { createEmptyReadableStream } from '../lib'
-import { createCallbacksTransformer, createEventStreamTransformer } from './lib'
-import { StreamCallbacksOptions, StreamChatCompletionResponse } from './type'
+import { StreamCallbacksOptions } from '../type'
+import { StreamChatCompletionResponse } from './type'
+import {
+  createCallbacksTransformer,
+  createEventStreamTransformer,
+} from './utils'
 
 export default function AnthropicStream(
   response: Response | StreamChatCompletionResponse,

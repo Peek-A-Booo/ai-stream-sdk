@@ -6,15 +6,11 @@ import type {
 } from 'eventsource-parser'
 
 import { getStreamEnd } from '../lib'
-import { StreamCallbacksOptions } from './type'
+import { StreamCallbacksOptions } from '../type'
 
 function getContent(message: string) {
   try {
-    return (
-      JSON.parse(message).content_block?.text ||
-      JSON.parse(message).delta?.text ||
-      ''
-    )
+    return JSON.parse(message).choices[0].delta.content
   } catch {
     return ''
   }
