@@ -27,12 +27,28 @@ export default async function handler(req: Request) {
       //   stream: true,
       // })
 
+      // const response = await fetch(
+      //   'https://api.nextapi.fun/v1/chat/completions',
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       Authorization: `Bearer ${apiKey || process.env.NEXT_API_KEY}`,
+      //     },
+      //     method: 'POST',
+      //     body: JSON.stringify({
+      //       stream: true,
+      //       model,
+      //       messages,
+      //     }),
+      //   },
+      // )
+
       const response = await fetch(
-        'https://api.nextapi.fun/v1/chat/completions',
+        'https://api.openai.com/v1/chat/completions',
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey || process.env.NEXT_API_KEY}`,
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           },
           method: 'POST',
           body: JSON.stringify({
@@ -42,19 +58,6 @@ export default async function handler(req: Request) {
           }),
         },
       )
-
-      // const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      //   },
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     stream: true,
-      //     model: 'gpt-3.5-turbo',
-      //     messages: [{ role: 'user', content: 'Say this is a test' }],
-      //   }),
-      // })
 
       const stream = OpenAIStream(response, {
         onStart: () => {
@@ -103,6 +106,6 @@ export default async function handler(req: Request) {
       })
     }
   } catch (error) {
-    console.log(error, '进来了')
+    console.log(error)
   }
 }

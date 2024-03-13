@@ -46,10 +46,11 @@ export function createEventStreamTransformer(
   isAsyncIterable: boolean,
 ): TransformStream<Uint8Array, string> {
   const prefix = isAsyncIterable ? 'data: ' : ''
+  const splitLine = isAsyncIterable ? '\n' : ''
 
   const textDecoder = new TextDecoder()
   let eventSourceParser: EventSourceParser
-  let hasStreamEnded = false
+  let hasStreamEnd = false
 
   return new TransformStream({
     async start(controller) {
@@ -59,15 +60,13 @@ export function createEventStreamTransformer(
           try {
             const isStreamEnd = getStreamEnd(event)
 
-            if (!isStreamEnd && 'data' in event) {
-              JSON.parse(event.data)
-            }
+            // Discard incomplete event data
+            if (!isStreamEnd && 'data' in event) JSON.parse(event.data)
 
             if (isStreamEnd) {
-              if (!hasStreamEnded) {
-                controller.enqueue('[DONE]')
-              }
-              hasStreamEnded = true
+              if (!hasStreamEnd) controller.enqueue('[DONE]')
+
+              hasStreamEnd = true
               controller.terminate()
               return
             }
@@ -81,14 +80,14 @@ export function createEventStreamTransformer(
       )
     },
     transform(chunk) {
-      const value = `${prefix}${textDecoder.decode(chunk)}\n`
+      const value = `${prefix}${textDecoder.decode(chunk)}${splitLine}`
       eventSourceParser.feed(value)
     },
   })
 }
 
 export function createCallbacksTransformer(
-  callbacks: StreamCallbacksOptions,
+  callbacks?: StreamCallbacksOptions,
 ): TransformStream<string, Uint8Array> {
   const textEncoder = new TextEncoder()
 
@@ -96,7 +95,7 @@ export function createCallbacksTransformer(
 
   return new TransformStream({
     async start(): Promise<void> {
-      if (callbacks.onStart) await callbacks.onStart()
+      if (callbacks?.onStart) await callbacks.onStart()
     },
 
     async transform(message, controller): Promise<void> {
@@ -107,7 +106,7 @@ export function createCallbacksTransformer(
     },
 
     async flush(): Promise<void> {
-      if (callbacks.onCompletion) {
+      if (callbacks?.onCompletion) {
         await callbacks.onCompletion(streamContent)
       }
     },

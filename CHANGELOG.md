@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.0.3
+## v0.0.9
 
 ### Added
 
@@ -9,3 +9,4 @@
 ### Fixed
 
 - In some scenarios, it may return incomplete information flow
+- Garbled text in streaming response

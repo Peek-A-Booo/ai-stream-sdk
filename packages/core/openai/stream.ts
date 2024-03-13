@@ -18,13 +18,6 @@ export default function OpenAIStream(
   const stream = responseBodyReadableStream
     .pipeThrough(createEventStreamTransformer(isAsyncIterable))
     .pipeThrough(createCallbacksTransformer(callbacks))
-    .pipeThrough(
-      new TransformStream({
-        transform: async (chunk, controller) => {
-          controller.enqueue(chunk)
-        },
-      }),
-    )
 
   return stream
 }
