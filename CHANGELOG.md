@@ -1,10 +1,11 @@
 # Changelog
 
-## v0.0.10
+## v0.0.11
 
 ### Add
 
 - Support for handling Claude API
+- Support for returning input_tokens and output_tokens in `onUsage`
 
 ## v0.0.9
 

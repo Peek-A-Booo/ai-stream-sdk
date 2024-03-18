@@ -42,6 +42,10 @@ export function createEventStreamTransformer(
             if (!isStreamEnd && 'data' in event) JSON.parse(event.data)
 
             if (isStreamEnd) {
+              // pipeThrough the usage data before [DONE]
+              if (JSON.parse((event as any).data).usage) {
+                controller.enqueue((event as any).data)
+              }
               if (!hasStreamEnd) controller.enqueue('[DONE]')
 
               hasStreamEnd = true
@@ -70,6 +74,8 @@ export function createCallbacksTransformer(
   const textEncoder = new TextEncoder()
 
   let streamContent = ''
+  let input_tokens = 0
+  let output_tokens = 0
 
   return new TransformStream({
     async start(): Promise<void> {
@@ -77,6 +83,12 @@ export function createCallbacksTransformer(
     },
 
     async transform(message, controller): Promise<void> {
+      try {
+        const usage =
+          JSON.parse(message).usage || JSON.parse(message).message.usage
+        input_tokens += usage?.input_tokens || 0
+        output_tokens += usage?.output_tokens || 0
+      } catch {}
       controller.enqueue(textEncoder.encode(`data: ${message}\n\n`))
 
       const content = getContent(message)
@@ -84,6 +96,10 @@ export function createCallbacksTransformer(
     },
 
     async flush(): Promise<void> {
+      if (callbacks?.onUsage) {
+        await callbacks.onUsage({ input_tokens, output_tokens })
+      }
+
       if (callbacks?.onCompletion) {
         await callbacks.onCompletion(streamContent)
       }
